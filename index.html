@@ -14,8 +14,11 @@
             font-family: 'Inter', sans-serif;
             background-color: #0f0a08;
             color: #f5e6d3;
+            overflow-x: hidden;
+            perspective: 2500px;
+            -webkit-font-smoothing: antialiased;
         }
-        h1, h2, h3, .font-serif {
+        h1, h2, h3, h4, .font-serif {
             font-family: 'Playfair Display', serif;
         }
         .pattern-batik {
@@ -24,16 +27,25 @@
         .text-gold { color: #D4AF37; }
         .bg-gold { background-color: #D4AF37; }
         .border-gold { border-color: #D4AF37; }
-        .bg-maroon { background-color: #4a0404; }
-        .text-maroon { color: #4a0404; }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-            animation: fadeIn 1s ease-out forwards;
+            animation: fadeIn 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
+
+        /* Cinematic Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f0a08; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; }
+        ::-webkit-scrollbar-thumb:hover { background: #fff; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        canvas { pointer-events: none; }
     </style>
     <script>
         tailwind.config = {
@@ -49,18 +61,19 @@
             }
         }
     </script>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+      }
+    }
+    </script>
 </head>
 <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
