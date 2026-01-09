@@ -8,8 +8,6 @@ import ScriptSection from './components/ScriptSection';
 import AboutSection from './components/AboutSection';
 import AIAssistant from './components/AIAssistant';
 import Footer from './components/Footer';
-
-// Komponen Detail & Gallery
 import TraditionDetailView from './components/TraditionDetailView';
 import TraditionGalleryView from './components/TraditionGalleryView';
 
@@ -18,119 +16,114 @@ const App: React.FC = () => {
   const [selectedTradition, setSelectedTradition] = useState<string | null>(null);
   const [showFullGallery, setShowFullGallery] = useState(false);
 
-  // MENGELOLA SCROLL LOCK SECARA TERPUSAT
-  // Jika modal terbuka, matikan scroll di halaman utama agar tidak stuck
+  /* Lock scroll saat modal */
   useEffect(() => {
-    if (selectedTradition || showFullGallery) {
-      document.body.style.overflow = 'hidden';
-      // Tambahkan padding-right untuk mencegah layout shifting jika ada scrollbar
-      document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
-    } else {
-      document.body.style.overflow = 'unset';
-      document.body.style.paddingRight = '0px';
-    }
+    document.body.style.overflow =
+      selectedTradition || showFullGallery ? 'hidden' : 'unset';
   }, [selectedTradition, showFullGallery]);
 
-  // FUNGSI UNTUK MENUTUP OVERLAY
+  /* Observer section */
+  useEffect(() => {
+    const sections = ['home', 'history', 'language', 'tradition', 'script', 'about'];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible) setActiveSection(visible.target.id);
+      },
+      { threshold: [0.25, 0.5, 0.75] }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleClose = () => {
     setSelectedTradition(null);
     setShowFullGallery(false);
-
-    // Gunakan setTimeout kecil untuk memastikan DOM sudah ter-update
-    setTimeout(() => {
-      const element = document.getElementById('tradition');
-      if (element) {
-        // Scroll kembali ke section tradition agar tidak pindah ke Home
-        element.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }
-    }, 50);
   };
 
-  // LOGIKA SCROLL SPY (Navigasi Aktif)
-  useEffect(() => {
-    const handleScroll = () => {
-      // Jangan jalankan scroll spy jika modal sedang terbuka
-      if (selectedTradition || showFullGallery) return;
-
-      const sections = ['home', 'history', 'language', 'tradition', 'script', 'about'];
-      const scrollPos = window.scrollY + 150;
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPos >= offsetTop && scrollPos < offsetTop + offsetHeight) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [selectedTradition, showFullGallery]);
-
   return (
-    <div className="relative min-h-screen bg-[#0a0a0a] selection:bg-gold selection:text-heritage overflow-x-hidden">
-      {/* Navigation - Z-Index harus di bawah Detail View */}
-      <Navigation activeSection={activeSection} />
-      
-      <main className={`transition-all duration-500 ${selectedTradition || showFullGallery ? 'blur-sm scale-95 opacity-50' : 'blur-0 scale-100 opacity-100'}`}>
-        <section id="home">
-          <Hero />
-        </section>
-        
-        <section id="history" className="pt-20">
-          <HistorySection />
-        </section>
-        
-        <section id="language" className="pt-20">
-          <LanguageSection />
-        </section>
-        
-        <section id="tradition" className="pt-20 relative z-10">
-          <TraditionSection 
-            onSelect={(id) => setSelectedTradition(id)} 
-            onViewAll={() => setShowFullGallery(true)}
-          />
-        </section>
-        
-        <section id="script" className="pt-20">
-          <ScriptSection />
-        </section>
-        
-        <section id="about" className="pt-20">
-          <AboutSection />
-        </section>
-        
-        <Footer />
+    <div className="relative min-h-screen bg-[#0a0a0a] text-cream">
+
+      {/* NAVBAR */}
+      <Navigation
+        activeSection={activeSection}
+        onNavigate={(id) => {
+          setActiveSection(id);
+          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
+
+      {/* 🔥 HERO — DI LUAR MAIN */}
+      <section id="home" className="relative z-0">
+        <Hero />
+      </section>
+
+      {/* 🔥 KONTEN SAJA YANG DIBLUR */}
+      <main
+        className={`relative z-10 transition-all duration-700 ${
+          selectedTradition || showFullGallery
+            ? 'blur-md scale-[0.98] opacity-40'
+            : 'blur-0 scale-100 opacity-100'
+        }`}
+      >
+        <div className="bg-[#0a0a0a]">
+
+          <section id="history" className="pt-24 scroll-mt-20">
+            <HistorySection />
+          </section>
+
+          <section id="language" className="pt-24 scroll-mt-20">
+            <LanguageSection />
+          </section>
+
+          <section id="tradition" className="pt-24 scroll-mt-20 relative z-20">
+            <TraditionSection
+              onSelect={(id) => setSelectedTradition(id)}
+              onViewAll={() => setShowFullGallery(true)}
+            />
+          </section>
+
+          <section id="script" className="pt-24 scroll-mt-20">
+            <ScriptSection />
+          </section>
+
+          <section id="about" className="pt-24 scroll-mt-20">
+            <AboutSection />
+          </section>
+
+          <Footer />
+        </div>
       </main>
 
-      {/* RENDER OVERLAY DI LUAR MAIN UNTUK MENGHINDARI KONFLIK CLICK */}
-      {selectedTradition && (
-        <div className="fixed inset-0 z-[999]">
-          <TraditionDetailView 
-            id={selectedTradition} 
-            onClose={handleClose} 
-          />
+      {/* MODAL */}
+      {(selectedTradition || showFullGallery) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md">
+          {selectedTradition && (
+            <TraditionDetailView id={selectedTradition} onClose={handleClose} />
+          )}
+          {showFullGallery && (
+            <TraditionGalleryView
+              onClose={handleClose}
+              onSelect={(id) => {
+                setSelectedTradition(id);
+                setShowFullGallery(false);
+              }}
+            />
+          )}
         </div>
       )}
 
-      {showFullGallery && (
-        <div className="fixed inset-0 z-[999]">
-          <TraditionGalleryView 
-            onClose={handleClose} 
-            onSelect={(id) => {
-              setSelectedTradition(id);
-              setShowFullGallery(false);
-            }}
-          />
-        </div>
-      )}
-
-      {/* AI Assistant tetap di depan */}
-      <div className="relative z-[1000]">
+      {/* AI Assistant */}
+      <div className="fixed bottom-6 right-6 z-[110]">
         <AIAssistant />
       </div>
     </div>
