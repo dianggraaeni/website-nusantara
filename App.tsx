@@ -23,19 +23,26 @@ const App: React.FC = () => {
   }, [selectedTradition, showFullGallery]);
 
   /* Observer section */
+  /* Observer section */
   useEffect(() => {
     const sections = ['home', 'history', 'language', 'tradition', 'script', 'about'];
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    const observerOptions = {
+      // rootMargin: '-20% 0px -70% 0px' artinya kita mendeteksi section 
+      // yang masuk ke area 20% dari atas layar. 
+      // Ini sangat efektif untuk navbar.
+      rootMargin: '-20% 0px -70% 0px',
+      threshold: 0
+    };
 
-        if (visible) setActiveSection(visible.target.id);
-      },
-      { threshold: [0.25, 0.5, 0.75] }
-    );
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        // Jika section tersebut masuk ke area "deteksi" kita
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
 
     sections.forEach((id) => {
       const el = document.getElementById(id);
