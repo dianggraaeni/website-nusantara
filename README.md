@@ -51,7 +51,6 @@ Follow these steps to set up the project locally:
 
    ```bash
    git clone https://github.com/dianggraaeni/website-nusantara.git
-````
 
 2. **Navigate to the project folder**
 
