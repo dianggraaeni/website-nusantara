@@ -15,29 +15,28 @@ const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [selectedTradition, setSelectedTradition] = useState<string | null>(null);
   const [showFullGallery, setShowFullGallery] = useState(false);
+  const [isFromGallery, setIsFromGallery] = useState(false);
 
-  /* Lock scroll saat modal */
+  // 1. LOCK SCROLL: Mencegah interaksi di background saat modal aktif
   useEffect(() => {
-    document.body.style.overflow =
-      selectedTradition || showFullGallery ? 'hidden' : 'unset';
+    if (selectedTradition || showFullGallery) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
   }, [selectedTradition, showFullGallery]);
 
-  /* Observer section */
-  /* Observer section */
+  // 2. INTERSECTION OBSERVER: Sensor otomatis untuk warna kuning di Navbar
   useEffect(() => {
     const sections = ['home', 'history', 'language', 'tradition', 'script', 'about'];
-
+    
     const observerOptions = {
-      // rootMargin: '-20% 0px -70% 0px' artinya kita mendeteksi section 
-      // yang masuk ke area 20% dari atas layar. 
-      // Ini sangat efektif untuk navbar.
-      rootMargin: '-20% 0px -70% 0px',
+      rootMargin: '-40% 0px -40% 0px',
       threshold: 0
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        // Jika section tersebut masuk ke area "deteksi" kita
         if (entry.isIntersecting) {
           setActiveSection(entry.target.id);
         }
@@ -52,14 +51,47 @@ const App: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  const handleClose = () => {
-    setSelectedTradition(null);
+  // 3. FUNGSI SCROLL BALIK: Menjamin kembali ke section Budaya
+  const scrollToTradition = () => {
+    setTimeout(() => {
+      const section = document.getElementById('tradition');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+        setActiveSection('tradition');
+      }
+    }, 100);
+  };
+
+  // 4. HANDLERS
+  const handleSelectFromSection = (id: string) => {
+    setIsFromGallery(false);
+    setSelectedTradition(id);
+  };
+
+  const handleSelectFromGallery = (id: string) => {
+    setIsFromGallery(true);
+    setSelectedTradition(id);
     setShowFullGallery(false);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedTradition(null);
+    if (isFromGallery) {
+      setShowFullGallery(true);
+    } else {
+      scrollToTradition();
+    }
+  };
+
+  const handleCloseGallery = () => {
+    setShowFullGallery(false);
+    setIsFromGallery(false);
+    scrollToTradition();
   };
 
   return (
     <div className="relative min-h-screen bg-[#0a0a0a] text-cream">
-
+      
       {/* NAVBAR */}
       <Navigation
         activeSection={activeSection}
@@ -69,21 +101,20 @@ const App: React.FC = () => {
         }}
       />
 
-      {/* 🔥 HERO — DI LUAR MAIN */}
+      {/* HERO SECTION */}
       <section id="home" className="relative z-0">
         <Hero />
       </section>
 
-      {/* 🔥 KONTEN SAJA YANG DIBLUR */}
+      {/* KONTEN UTAMA */}
       <main
         className={`relative z-10 transition-all duration-700 ${
           selectedTradition || showFullGallery
-            ? 'blur-md scale-[0.98] opacity-40'
+            ? 'blur-2xl scale-95 opacity-50 pointer-events-none'
             : 'blur-0 scale-100 opacity-100'
         }`}
       >
         <div className="bg-[#0a0a0a]">
-
           <section id="history" className="pt-24 scroll-mt-20">
             <HistorySection />
           </section>
@@ -92,9 +123,9 @@ const App: React.FC = () => {
             <LanguageSection />
           </section>
 
-          <section id="tradition" className="pt-24 scroll-mt-20 relative z-20">
+          <section id="tradition" className="pt-24 relative z-20 scroll-mt-20">
             <TraditionSection
-              onSelect={(id) => setSelectedTradition(id)}
+              onSelect={handleSelectFromSection}
               onViewAll={() => setShowFullGallery(true)}
             />
           </section>
@@ -111,28 +142,30 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* MODAL */}
-      {(selectedTradition || showFullGallery) && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md">
-          {selectedTradition && (
-            <TraditionDetailView id={selectedTradition} onClose={handleClose} />
-          )}
-          {showFullGallery && (
-            <TraditionGalleryView
-              onClose={handleClose}
-              onSelect={(id) => {
-                setSelectedTradition(id);
-                setShowFullGallery(false);
-              }}
-            />
-          )}
-        </div>
+      {/* SYSTEM MODAL (Ditaruh paling luar agar portal bekerja sempurna) */}
+      
+      {/* 1. Galeri Lengkap */}
+      {showFullGallery && !selectedTradition && (
+        <TraditionGalleryView
+          onClose={handleCloseGallery}
+          onSelect={handleSelectFromGallery}
+        />
       )}
 
-      {/* AI Assistant */}
-      <div className="fixed bottom-6 right-6 z-[110]">
-        <AIAssistant />
-      </div>
+      {/* 2. Detail Tradisi */}
+      {selectedTradition && (
+        <TraditionDetailView 
+          id={selectedTradition} 
+          onClose={handleCloseDetail} 
+        />
+      )}
+
+      {/* 3. AI Assistant
+          Meskipun dipanggil di sini, Portal akan memindahkannya otomatis 
+          ke document.body agar tidak kena efek blur/scale dari <main> 
+      */}
+      <AIAssistant />
+
     </div>
   );
 };

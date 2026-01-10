@@ -3,7 +3,6 @@ import React from 'react';
 const Hero: React.FC = () => {
   return (
     <div className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* 1. Video Background Layer (Local File) */}
       <div className="absolute inset-0 -z-20 overflow-hidden">
         <video 
           autoPlay 
@@ -12,13 +11,11 @@ const Hero: React.FC = () => {
           playsInline
           className="w-full h-full object-cover scale-105"
         >
-          {/* Pastikan file 'hero-video.mp4' ada di folder proyek Anda */}
           <source src="./hero-video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       </div>
 
-      {/* 2. OVERLAYS (Tiga lapis agar video estetik tapi tulisan tetap tajam) */}
       {/* Lapis 1: Gelap dasar */}
       <div className="absolute inset-0 -z-10 bg-black/40"></div>
       {/* Lapis 2: Gradasi ke bawah agar menyatu dengan section selanjutnya */}
@@ -26,13 +23,7 @@ const Hero: React.FC = () => {
       {/* Lapis 3: Sedikit rona cokelat/emas agar mewah */}
       <div className="absolute inset-0 -z-10 bg-[#0f0a08]/30 mix-blend-multiply"></div>
 
-      {/* 3. CONTENT SECTION */}
-      {/* 
-          DIBUAT PRESISI: 
-          Tambahkan '-mt-16' (mobile) dan 'md:-mt-24' (desktop) 
-          untuk mengangkat tulisan ke atas. Ini akan membuatnya terlihat 
-          benar-benar di tengah mata (mengompensasi adanya Navbar).
-      */}
+      {/* CONTENT SECTION */}
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto -mt-16 md:-mt-24">
         
         <p className="safe-animate-1 uppercase tracking-[0.5em] mb-6 font-bold text-xs md:text-sm" 
@@ -63,7 +54,6 @@ const Hero: React.FC = () => {
         </div>
       </div>
 
-      {/* CSS KHUSUS (Copy semua ini) */}
       <style>{`
         /* Animasi yang lebih aman: teks tetap muncul meski animasi gagal load */
         @keyframes fadeInRise {

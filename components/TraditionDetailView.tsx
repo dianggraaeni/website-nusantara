@@ -1,98 +1,88 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { traditions } from '../data/traditionData';
 
 const TraditionDetailView: React.FC<{ id: string; onClose: () => void }> = ({ id, onClose }) => {
   const data = traditions.find(t => t.id === id);
-  // Ref untuk menargetkan kontainer scroll secara spesifik
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    // 1. Paksa kontainer internal ke posisi paling atas (0)
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
-    
-    // 2. Kunci scroll body utama
-    document.body.style.overflow = 'hidden';
-    
-    return () => { 
-      document.body.style.overflow = 'unset'; 
-    };
-  }, [id]); // Trigger ulang jika ID berubah
+  }, [id]);
 
-  if (!data) return null;
+  if (!data) {
+    return createPortal(
+      <div className="fixed inset-0 z-[999999] bg-black flex items-center justify-center text-white">
+        <div className="text-center">
+          <p className="mb-4">Data tradisi tidak ditemukan (ID: {id})</p>
+          <button onClick={onClose} className="bg-yellow-500 text-black px-6 py-2 rounded-full">Tutup</button>
+        </div>
+      </div>,
+      document.body
+    );
+  }
 
-  return (
+  return createPortal(
     <div 
-      ref={scrollContainerRef} // Pasang ref di sini
-      className="fixed inset-0 z-[150] bg-[#0a0a0a] overflow-y-auto h-screen w-screen scroll-smooth"
+      ref={scrollContainerRef}
+      className="fixed inset-0 z-[999999] bg-[#0a0a0a] overflow-y-auto h-screen w-screen font-sans text-white"
     >
       <div className="relative min-h-screen">
-        {/* Hero Section dengan Gambar */}
-        <div className="relative h-[50vh] md:h-[70vh] w-full bg-[#1a1a1a]">
-          {data.image ? (
-            <img 
-              src={data.image} 
-              alt={data.name} 
-              className="w-full h-full object-cover opacity-60" 
-              onError={(e) => (e.currentTarget.style.display = 'none')} // Sembunyikan jika broken
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-b from-gold/10 to-[#0a0a0a]" />
-          )}
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/20 to-transparent" />
-          
-          {/* Tombol Kembali yang tetap di atas (sticky/fixed) */}
-          <div className="absolute top-8 left-4 md:left-8 z-[160]">
-            <button 
-              onClick={onClose} 
-              className="flex items-center gap-2 text-gold bg-black/60 backdrop-blur-md border border-gold/30 px-6 py-2 rounded-full hover:bg-gold hover:text-black transition-all font-bold text-sm tracking-widest uppercase"
-            >
-              ← Kembali
-            </button>
-          </div>
+        {/* Tombol Kembali - Dipaksa muncul di paling depan */}
+        <div className="fixed top-8 left-6 md:left-12 z-[1000000]">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+            }} 
+            className="flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full hover:bg-yellow-500 hover:text-black transition-all font-bold text-[10px] tracking-[0.4em] uppercase shadow-2xl"
+          >
+            ← Kembali
+          </button>
         </div>
 
-        {/* Content Card - Dibuat lebih rapi dengan padding yang pas */}
-        <div className="max-w-5xl mx-auto px-4 md:px-6 -mt-32 md:-mt-48 relative z-10 pb-24">
-          <div className="bg-[#0f0f0f]/95 backdrop-blur-2xl border border-white/10 p-6 md:p-14 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-              <span className="inline-block text-gold font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs mb-4 border-b border-gold/30 pb-1">
+        {/* Hero Section */}
+        <div className="relative h-[65vh] md:h-[80vh] w-full">
+          <img src={data.image} alt={data.name} className="w-full h-full object-cover brightness-[0.4]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+        </div>
+
+        {/* Content Card */}
+        <div className="max-w-6xl mx-auto px-6 -mt-40 relative z-10 pb-32">
+          <div className="bg-[#111] backdrop-blur-2xl border border-white/10 p-8 md:p-20 rounded-[3rem] shadow-2xl">
+              <span className="text-yellow-500 font-black uppercase tracking-[0.5em] text-[10px] block mb-6 border-l-2 border-yellow-500 pl-4">
                 {data.region}
               </span>
               
-              <h1 className="text-4xl md:text-7xl font-serif text-cream mb-10 leading-[1.1]">
+              <h1 className="text-5xl md:text-8xl font-serif text-white mb-12 leading-tight">
                 {data.name}
               </h1>
               
-              <div className="grid lg:grid-cols-3 gap-12 md:gap-16">
-                <div className="lg:col-span-2 space-y-12">
-                  <div className="space-y-4">
-                    <h4 className="text-gold/50 text-[10px] font-bold uppercase tracking-[0.2em]">Tentang Tradisi</h4>
-                    <p className="text-lg md:text-xl text-cream/80 leading-relaxed font-light">
+              <div className="grid lg:grid-cols-3 gap-16">
+                <div className="lg:col-span-2 space-y-16">
+                  <div className="space-y-6">
+                    <h4 className="text-white/30 text-[9px] font-bold uppercase tracking-[0.3em]">Tentang Tradisi</h4>
+                    <p className="text-xl md:text-2xl text-white/80 leading-relaxed font-light italic font-serif">
                       {data.desc}
                     </p>
                   </div>
                   
-                  <div className="pt-10 border-t border-white/10">
-                    <h4 className="text-gold/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-6">Filosofi</h4>
-                    <blockquote className="text-2xl md:text-4xl font-serif italic text-gold/90 leading-snug">
+                  <div className="pt-12 border-t border-white/5">
+                    <h4 className="text-white/30 text-[9px] font-bold uppercase tracking-[0.3em] mb-8">Filosofi Luhur</h4>
+                    <blockquote className="text-3xl md:text-5xl font-serif italic text-yellow-500/90 leading-tight">
                       "{data.philosophy}"
                     </blockquote>
                   </div>
                 </div>
                 
-                {/* Galeri Samping */}
                 <div className="space-y-8">
-                  <h4 className="text-gold/50 text-[10px] font-bold uppercase tracking-[0.2em] border-b border-white/10 pb-2">Galeri Foto</h4>
-                  <div className="grid grid-cols-1 gap-5">
+                  <h4 className="text-white/30 text-[9px] font-bold uppercase tracking-[0.3em] border-b border-white/5 pb-4">Dokumentasi Visual</h4>
+                  <div className="grid grid-cols-1 gap-6">
                     {data.gallery.map((img, i) => (
-                      <div key={i} className="group overflow-hidden rounded-2xl border border-white/5 aspect-video bg-[#1a1a1a]">
-                        <img 
-                          src={img} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" 
-                          alt={`Gallery ${i}`} 
-                        />
+                      <div key={i} className="group overflow-hidden rounded-[2rem] border border-white/5 aspect-video bg-[#1a1a1a]">
+                        <img src={img} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700" alt="Gallery" />
                       </div>
                     ))}
                   </div>
@@ -101,7 +91,8 @@ const TraditionDetailView: React.FC<{ id: string; onClose: () => void }> = ({ id
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

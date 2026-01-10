@@ -1,7 +1,7 @@
 import React from 'react';
+import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
-  // Samakan ID dengan yang ada di App.tsx agar navigasi berfungsi
   const navigationLinks = [
     { label: 'Beranda', id: 'home' },
     { label: 'Sejarah', id: 'history' },
@@ -11,45 +11,61 @@ const Footer: React.FC = () => {
   ];
 
   const socialMedia = [
-    { name: 'FB', label: 'Facebook', url: '#' },
-    { name: 'TW', label: 'Twitter', url: '#' },
-    { name: 'IG', label: 'Instagram', url: '#' },
-    { name: 'YT', label: 'Youtube', url: '#' },
+    { icon: <FaFacebookF />, label: 'Facebook', url: '#' },
+    { icon: <FaTwitter />, label: 'Twitter', url: '#' },
+    { icon: <FaInstagram />, label: 'Instagram', url: '#' },
+    { icon: <FaYoutube />, label: 'Youtube', url: '#' },
   ];
 
   return (
-    <footer className="bg-[#0f0a08] pt-20 pb-10 border-t border-gold/10">
-      <div className="max-w-7xl mx-auto px-6">
+    <footer className="relative bg-[#0f0a08] pt-20 pb-10 border-t border-gold/10 overflow-hidden">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
+        <img 
+          src="/footer-bg.jpg"
+          alt="" 
+          className="w-full h-full object-cover sepia"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0f0a08] to-transparent" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-12 mb-20">
           
           {/* Brand Section */}
           <div className="col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-maroon rounded-full flex items-center justify-center border border-gold">
-                <span className="text-gold font-serif text-lg">BN</span>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 overflow-hidden rounded-full border border-gold/50 shadow-[0_0_15px_rgba(212,175,55,0.3)] bg-[#1a130d]">
+                <img 
+                  src="/garuda gold.jpg" 
+                  alt="Budaya Nusantara Logo"
+                  className="w-full h-full object-cover scale-110" 
+                />
               </div>
-              <span className="font-serif text-xl text-gold uppercase tracking-[0.2em]">
+
+              <span className="font-serif text-xl text-gold uppercase tracking-[0.2em] drop-shadow-md">
                 Budaya Nusantara
               </span>
             </div>
+            
             <p className="text-cream/60 max-w-sm leading-relaxed mb-8 text-sm">
               Platform digital yang didedikasikan untuk mendokumentasikan, merayakan, dan melestarikan kekayaan tak ternilai dari Sabang sampai Merauke demi generasi mendatang.
             </p>
+            
             <div className="flex gap-4">
               {socialMedia.map((social) => (
                 <a 
                   key={social.label} 
                   href={social.url} 
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-full border border-gold/20 flex items-center justify-center text-gold text-[10px] font-bold hover:bg-gold hover:text-heritage transition-all duration-300"
+                  className="w-10 h-10 rounded-full border border-gold/20 flex items-center justify-center text-gold hover:bg-gold hover:text-black transition-all duration-500 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
                 >
-                   {social.name}
+                   {social.icon}
                 </a>
               ))}
             </div>
           </div>
           
-          {/* Quick Links - Terhubung ke Section ID */}
+          {/* Navigasi */}
           <div>
             <h4 className="text-gold font-serif text-lg mb-6 tracking-wider">Navigasi</h4>
             <ul className="space-y-4">
@@ -67,7 +83,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Contact Section */}
+          {/* Kontak */}
           <div>
             <h4 className="text-gold font-serif text-lg mb-6 tracking-wider">Kontak</h4>
             <p className="text-xs text-cream/40 mb-3 italic">Butuh informasi lebih lanjut?</p>
@@ -77,7 +93,7 @@ const Footer: React.FC = () => {
             >
               halo@budayanusantara.id
             </a>
-            <div className="mt-6 p-4 border border-gold/10 rounded-sm bg-gold/5">
+            <div className="mt-6 p-4 border border-gold/10 rounded-sm bg-gold/5 backdrop-blur-sm">
               <p className="text-[10px] text-gold/60 leading-relaxed uppercase tracking-widest">
                 Mari bersama menjaga warisan leluhur kita.
               </p>
